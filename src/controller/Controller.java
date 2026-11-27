@@ -31,7 +31,7 @@ public class Controller {
         this.timeoutMs = timeoutMs;
     }
 
-    //builds the question box and Ask Models button and wires the listener
+    //question box + ask button
     public JPanel createInputPanel() {
 
         JPanel panel = new JPanel(new BorderLayout(5, 5));
@@ -62,7 +62,7 @@ public class Controller {
     }
 
 
-    //validates, resets the model, then fires every strategy without waiting
+    //check question, reset model, send to all 3 models (no waiting)
     public void handleUserQuery(String rawQuestion) {
 
         if (rawQuestion == null || rawQuestion.trim().isEmpty()) {
@@ -79,7 +79,7 @@ public class Controller {
     }
 
 
-    //starts one request and turns its outcome into a model update
+    //one request -> update model when its done
     public void processStrategy(LLMStrategy strategy, String question) {
 
         String name = strategy.getDisplayName();
@@ -127,7 +127,7 @@ public class Controller {
                 });
     }
 
-    //readable error text; connection errors often have no message
+    //connect errors dont have a message so make one
     private String describe(Throwable cause) {
 
         if (cause instanceof java.net.ConnectException) {

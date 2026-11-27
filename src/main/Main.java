@@ -1,51 +1,47 @@
 package main;
 
-import model.LLMResponse;
+import client.OllamaClient;
+import controller.Controller;
 import model.QuerySession;
-import model.ResponseStatus;
-import view.LLMResponseView;
+import strategy.GemmaStrategy;
+import strategy.LLMStrategy;
+import strategy.LlamaStrategy;
+import strategy.QwenStrategy;
+import view.ViewHarness;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class Main {
+
     public static void main(String[] args) {
-
-        //setting up swing gui
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("AI Study Assistant");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(950, 400);
-
             QuerySession session = new QuerySession();
+            OllamaClient client = new OllamaClient();
 
-            JPanel mainPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-            mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            List<LLMStrategy> strategies = List.of(
+                    new LlamaStrategy(client),
+                    new GemmaStrategy(client),
+                    new QwenStrategy(client)
+            );
 
-            mainPanel.add(new LLMResponseView("Llama", session));
-            mainPanel.add(new LLMResponseView("Gemma", session));
-            mainPanel.add(new LLMResponseView("Qwen", session));
+            Controller controller = new Controller(
+                    session,
+                    strategies,
+                    Controller.DEFAULT_TIMEOUT_MS
+            );
 
-            frame.add(mainPanel, BorderLayout.CENTER);
+            JFrame frame = new JFrame("Multi-Model AI Study Assistant");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(1100, 600);
+            frame.setLayout(new BorderLayout(8, 8));
 
-            JPanel controlPanel = new JPanel();
-            JButton startButton = new JButton("Start Query");
-            JButton updateLlamaButton = new JButton("Update Llama (Success)");
-            JButton updateGemmaButton = new JButton("Update Gemma (Timeout)");
+            // Top/North: Controller's question input area and "Ask Models" button
+            frame.add(controller.createInputPanel(), BorderLayout.NORTH);
 
-            //buttons for testing
-            startButton.addActionListener(e -> session.startNewQuery("What is polymorphism?"));
-
-            updateLlamaButton.addActionListener(e -> session.updateResponse("Llama",
-                    new LLMResponse("Llama", "Polymorphism allows objects of different types to be handled through a uniform interface.", ResponseStatus.SUCCESS, 1150, null)));
-
-            updateGemmaButton.addActionListener(e -> session.updateResponse("Gemma",
-                    new LLMResponse("Gemma", "", ResponseStatus.TIMEOUT, 5000, "Request timed out")));
-
-            controlPanel.add(startButton);
-            controlPanel.add(updateLlamaButton);
-            controlPanel.add(updateGemmaButton);
-            frame.add(controlPanel, BorderLayout.SOUTH);
+            // Center: Three side-by-side LLMResponseView panels observing QuerySession
+            frame.add(ViewHarness.createResponsesPanel(session), BorderLayout.CENTER);
 
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);

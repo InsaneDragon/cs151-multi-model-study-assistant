@@ -1,0 +1,9 @@
+.vs/
+.idea/
+.vscode/
+out/
+bin/
+lib/
+*.class
+sources.txt
+tests.txt
