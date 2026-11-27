@@ -85,7 +85,7 @@ public class OllamaClient {
         // Find where the actual generated text starts.
         int start = markerIndex + marker.length();
 
-        // Read until the closing quote, turning escapes back into characters.
+        // Read until the closing quote and turn escapes back into characters.
         StringBuilder text = new StringBuilder();
 
         for (int i = start; i < json.length(); i++) {
@@ -104,7 +104,7 @@ public class OllamaClient {
                 continue;
             }
 
-            // Handle an escape sequence such as \n or \"
+            // Handle escapes like \n and \"
             char next = json.charAt(++i);
 
             switch (next) {

@@ -58,6 +58,12 @@ public class LLMResponseView extends JPanel implements ModelObserver {
     @Override
     public void modelChanged() {
 
+        //results come back on other threads so update swing on its own thread
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(this::modelChanged);
+            return;
+        }
+
         LLMResponse response = session.getResponse(modelName);
 
         if (response != null) {
